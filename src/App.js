@@ -27,6 +27,7 @@ function Canvas({ shapes }) {
   const [isDragging, setIsDragging] = useState(false);
   const [{ selectedShape }, setPresence] = useMyPresence();
   const others = useOthers();
+  
   const insertRectangle = () => {
     const shapeId = Date.now().toString();
     
@@ -38,46 +39,49 @@ function Canvas({ shapes }) {
     shapes.set(shapeId, rectangle);
   };
 
-    const onShapePointerDown = (e, shapeId) => {
-      e.stopPropagation();
+  const deleteRectangle = () => {
+    shapes.delete(selectedShape);
+    setPresence({selectedShape: null})
+  };
 
-      setPresence({ selectedShape: shapeId});
+  const onShapePointerDown = (e, shapeId) => {
+    e.stopPropagation();
 
-      setIsDragging(true);
-    };
+    setPresence({ selectedShape: shapeId});
 
-    const onCanvasPointerUp = (e) => {
-      if (!isDragging) {
-        setPresence({ selectedShape: null });
-      }
+    setIsDragging(true);
+  };
+
+  const onCanvasPointerUp = (e) => {
+    if (!isDragging) {
+      setPresence({ selectedShape: null });
+    }
+
+    setIsDragging(false);
+  };
+
+  const onCanvasPointerMove = (e) => {
+    e.preventDefault();
   
-      setIsDragging(false);
-    };
-
-    const onCanvasPointerMove = (e) => {
-      e.preventDefault();
-
-      if (isDragging){
-        const shape = shape.get(selectedShape);
-        if(shape){
-          shapes.set(selectedShape,{
-            ...shape,
-            x: e.clientX -50,
-            y: e.clientY -50,
-          });
-        }
+    if (isDragging){
+      const shape = shapes.get(selectedShape);
+      if (shape) {
+        shapes.set(selectedShape, {
+          ...shape,
+          x: e.clientX - 50,
+          y: e.clientY - 50,
+        });
       }
-    };
-    const deleteRectangle = () => {
-      shapes.delete(selectedShape);
-      setPresence({selectedShape: null})
-    };
+    }
+  };
+    
+
 
   return (
     <>
       <div className="canvas"
-      // onPointerMove={onCanvasPointerMove}
-      // onPointerUp={onCanvasPointerUp}
+      onPointerMove={onCanvasPointerMove}
+      onPointerUp={onCanvasPointerUp}
       >
         {Array.from(shapes, ([shapeId, shape]) => {
           let selectionColor = selectedShape === shapeId ? "blue" : Array.from(others).some((user) => user.presence?.selectedShape === shapeId) ? "green" : undefined;
