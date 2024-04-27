@@ -1,4 +1,4 @@
-import { useMap, useMyPresence, useOthers, useHistory } from "./liveblocks.config";
+import { useMap, useMyPresence, useOthers, useHistory, useBatch, } from "./liveblocks.config";
 
 import "./App.css";
 import { useState } from "react";
@@ -28,8 +28,10 @@ function Canvas({ shapes }) {
   const [{ selectedShape }, setPresence] = useMyPresence();
   const others = useOthers();
   const history = useHistory();
+  const batch = useBatch();
   
   const insertRectangle = () => {
+    batch(()=> {
     const shapeId = Date.now().toString();
     
     const rectangle = {
@@ -38,6 +40,8 @@ function Canvas({ shapes }) {
       fill: getRandomColor(),
     };
     shapes.set(shapeId, rectangle);
+    setPresence({ selectedShape: shapeId}, { addToHistory: true });
+  });
   };
 
   const deleteRectangle = () => {
@@ -46,6 +50,7 @@ function Canvas({ shapes }) {
   };
 
   const onShapePointerDown = (e, shapeId) => {
+    history.pause();
     e.stopPropagation();
 
     setPresence({ selectedShape: shapeId}, { addToHistory: true });
@@ -59,6 +64,8 @@ function Canvas({ shapes }) {
     }
 
     setIsDragging(false);
+
+    history.resume();
   };
 
   const onCanvasPointerMove = (e) => {
