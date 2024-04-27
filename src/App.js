@@ -1,4 +1,4 @@
-import { useMap, useMyPresence, useOthers } from "./liveblocks.config";
+import { useMap, useMyPresence, useOthers, useHistory } from "./liveblocks.config";
 
 import "./App.css";
 import { useState } from "react";
@@ -27,6 +27,7 @@ function Canvas({ shapes }) {
   const [isDragging, setIsDragging] = useState(false);
   const [{ selectedShape }, setPresence] = useMyPresence();
   const others = useOthers();
+  const history = useHistory();
   
   const insertRectangle = () => {
     const shapeId = Date.now().toString();
@@ -47,14 +48,14 @@ function Canvas({ shapes }) {
   const onShapePointerDown = (e, shapeId) => {
     e.stopPropagation();
 
-    setPresence({ selectedShape: shapeId});
+    setPresence({ selectedShape: shapeId}, { addToHistory: true });
 
     setIsDragging(true);
   };
 
   const onCanvasPointerUp = (e) => {
     if (!isDragging) {
-      setPresence({ selectedShape: null });
+      setPresence({ selectedShape: null }, { addToHistory: true });
     }
 
     setIsDragging(false);
@@ -102,6 +103,9 @@ function Canvas({ shapes }) {
         <button onClick={deleteRectangle} disabled={selectedShape == null}>
           Delete
         </button>
+        <button onClick={history.undo}>Ubdo</button>
+        <button onClick={history.undo}>Redo</button>
+
       </div>
     </>
   );
