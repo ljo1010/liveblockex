@@ -1,5 +1,11 @@
-import { useMap, useMyPresence, useOthers, useHistory, useBatch, } from "./liveblocks.config";
-
+import { 
+        useMap, 
+        useMyPresence, 
+        useOthers, 
+        useHistory, 
+        useBatch, 
+        useRoom} from "./liveblocks.config";
+import { LiveObject } from "@liveblocks/client";
 import "./App.css";
 import { useState } from "react";
 
@@ -33,20 +39,19 @@ function Canvas({ shapes }) {
   const insertRectangle = () => {
     batch(()=> {
     const shapeId = Date.now().toString();
-    
-    const rectangle = {
+    const shape = new LiveObject({
       x: getRandomInt(300),
       y: getRandomInt(300),
       fill: getRandomColor(),
-    };
-    shapes.set(shapeId, rectangle);
+    });
+    shapes.set(shapeId, shape);
     setPresence({ selectedShape: shapeId}, { addToHistory: true });
   });
   };
 
   const deleteRectangle = () => {
     shapes.delete(selectedShape);
-    setPresence({selectedShape: null})
+    setPresence({selectedShape: null});
   };
 
   const onShapePointerDown = (e, shapeId) => {
